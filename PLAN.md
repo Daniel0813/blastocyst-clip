@@ -80,10 +80,16 @@ Done when: our numbers match theirs (also settles the conflicting Swin figures i
       Bonus: the 120 grade-stating captions form a small cross-clinic (EmbryoScope) Gardner test set.
 - [x] Pseudo-caption generator `pseudo_caption()` in `src/text.py`: grade triple → sentence
 
-## Phase 4 — E0: zero-shot (no training)
-- [ ] Encode all images once, cache embeddings to Drive
-- [ ] Encode prompts, average phrasings per grade, predict by cosine similarity, apply ND rule
-- [ ] Report on both splits (expected to be weak — it is the starting point)
+## Phase 4 — E0: zero-shot (no training) ✅ done
+Ran on Colab T4 via `notebooks/01_extract_embeddings.ipynb` (commit a371795, 2026-09-27).
+Embeddings saved to Drive: `MyDrive/blastocyst-clip/results/embeddings/biomedclip/`.
+- [x] Encode all images once, cache embeddings to Drive (2,342 blastocyst + 172 caption images, 512-d)
+- [x] Encode prompts, average phrasings per grade, predict by cosine similarity, apply ND rule
+- [x] Result — **worse than always guessing the most common grade**:
+      clean accuracy EXP 0.134 / ICM 0.168 / TE 0.184 (macro F1 0.105 / 0.140 / 0.157);
+      kromp protocol 0.133 / 0.167 / 0.211. Predicted grade 1 for 188 of 300 test images
+      (true grade 1: 23). BiomedCLIP's text side does not link Gardner descriptions to these
+      images; the link must be learned (track A). This is the floor of the label-efficiency curve.
 
 ## Phase 5 — E1: THE BASELINE
 - [ ] Three linear heads on cached embeddings: EXP (5), ICM (3), TE (3)
