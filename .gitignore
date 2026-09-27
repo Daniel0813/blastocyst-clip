@@ -5,7 +5,9 @@ data/
 papers/*.pdf
 
 # Generated artifacts (embeddings, checkpoints, large outputs)
+results/embeddings/
 results/**/*.npy
+results/**/*.npz
 results/**/*.pt
 results/**/*.ckpt
 checkpoints/
