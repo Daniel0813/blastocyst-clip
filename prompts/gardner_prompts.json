@@ -1,0 +1,80 @@
+{
+  "_source": "Gardner blastocyst grading criteria (Gardner & Schoolcraft 1999; Gardner et al. 2000, Fertil Steril, doi:10.1016/S0015-0282(00)00518-5). Codes as in labels.csv: EXP 0-4 = grade 1-5; ICM/TE 0/1/2 = A/B/C.",
+  "_usage": "Class prompt = template.format(phrase); for ICM/TE the phrase is 'a blastocyst in which ' + clause. Pseudo-captions combine one EXP phrase with ICM/TE clauses (or the ND sentence for EXP grade 1-2).",
+
+  "templates": [
+    "{}.",
+    "a light microscopy image of {}.",
+    "a day-5 human embryo: {}."
+  ],
+
+  "EXP": {
+    "0": [
+      "an early blastocyst whose blastocoel cavity fills less than half of the embryo",
+      "an early blastocyst with a small fluid-filled cavity, Gardner expansion grade 1",
+      "an embryo at the start of blastulation with a small blastocoel"
+    ],
+    "1": [
+      "a blastocyst whose blastocoel cavity fills at least half of the embryo",
+      "a blastocyst of Gardner expansion grade 2 with a growing blastocoel",
+      "a blastocyst whose cavity occupies half or more of the embryo volume"
+    ],
+    "2": [
+      "a full blastocyst whose blastocoel cavity completely fills the embryo",
+      "a full blastocyst of Gardner expansion grade 3 with a zona pellucida that has not yet thinned",
+      "a full blastocyst with the blastocoel filling the whole embryo"
+    ],
+    "3": [
+      "an expanded blastocyst whose blastocoel is larger than the early embryo and whose zona pellucida is thinning",
+      "an expanded blastocyst of Gardner grade 4 with a thin zona pellucida",
+      "an expanded blastocyst with an enlarged cavity stretching the zona pellucida"
+    ],
+    "4": [
+      "a hatching blastocyst whose trophectoderm is herniating through the zona pellucida",
+      "a hatching blastocyst of Gardner grade 5 with cells emerging through the zona pellucida",
+      "a blastocyst that has started to hatch from the zona pellucida"
+    ]
+  },
+
+  "ICM": {
+    "0": [
+      "the inner cell mass is tightly packed with many cells",
+      "the inner cell mass is grade A, prominent and compact with many cells",
+      "a large, compact inner cell mass of many cells is visible"
+    ],
+    "1": [
+      "the inner cell mass is loosely grouped with several cells",
+      "the inner cell mass is grade B, with several loosely grouped cells",
+      "the inner cell mass is less compact, containing several cells"
+    ],
+    "2": [
+      "the inner cell mass contains very few cells",
+      "the inner cell mass is grade C, with very few cells",
+      "the inner cell mass is poorly defined with very few cells"
+    ]
+  },
+
+  "TE": {
+    "0": [
+      "the trophectoderm has many cells forming a cohesive epithelium",
+      "the trophectoderm is grade A, a tight continuous layer of many cells",
+      "many small trophectoderm cells form a cohesive layer"
+    ],
+    "1": [
+      "the trophectoderm has few cells forming a loose epithelium",
+      "the trophectoderm is grade B, a loose layer of few cells",
+      "the trophectoderm is formed by fewer cells in a loosely connected layer"
+    ],
+    "2": [
+      "the trophectoderm has very few large cells",
+      "the trophectoderm is grade C, with very few large cells",
+      "the trophectoderm consists of only a few large cells"
+    ]
+  },
+
+  "ND": [
+    "the inner cell mass and trophectoderm are not yet distinguishable",
+    "the inner cell mass and trophectoderm cannot be graded at this stage",
+    "the cell lineages are not yet clearly separated"
+  ]
+}

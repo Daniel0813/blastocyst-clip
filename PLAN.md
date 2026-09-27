@@ -70,11 +70,15 @@ reproduce under the authors' protocol. See `results/baselines/README.md`.
 
 Done when: our numbers match theirs (also settles the conflicting Swin figures in CLAUDE.md).
 
-## Phase 3 — Text side
-- [ ] `prompts/gardner_prompts.json`: 3–5 phrasings per grade from the Gardner criteria and Istanbul Consensus
-- [ ] Download `caption_silver.jsonl` + `images.zip` (Figshare 32024349); **count blastocyst-stage captions**
-  — go/no-go gate for track A (need roughly 200)
-- [ ] Pseudo-caption generator: grade triple → sentence
+## Phase 3 — Text side ✅ done
+- [x] `prompts/gardner_prompts.json`: 3 phrasings per grade (Gardner criteria) × 3 templates = 9 prompts per class; `src/text.py` loads them
+- [x] Silver captions + images downloaded to `data/captions/` (checksums verified)
+- [x] **Go/no-go count: GO, but thinner than estimated.** `src/select_blastocyst_captions.py` finds
+      **172 blastocyst-stage captions** (silver 152 + gold 20; estimate was ~200).
+      Expansion grade stated in 120 (grades 1–5: 24/27/46/18/5); ICM letter grade in 53, TE in 52.
+      Expansion is well covered, ICM/TE quality much less. About 3 of 120 stated grades contradict the stage (caption noise).
+      Bonus: the 120 grade-stating captions form a small cross-clinic (EmbryoScope) Gardner test set.
+- [x] Pseudo-caption generator `pseudo_caption()` in `src/text.py`: grade triple → sentence
 
 ## Phase 4 — E0: zero-shot (no training)
 - [ ] Encode all images once, cache embeddings to Drive
