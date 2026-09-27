@@ -1,0 +1,24 @@
+# Datasets live on local disk / Google Drive, never in git
+data/
+
+# Paper PDFs: third-party copyright; notes are kept in papers/paper-notes.md
+papers/*.pdf
+
+# Generated artifacts (embeddings, checkpoints, large outputs)
+results/**/*.npy
+results/**/*.pt
+results/**/*.ckpt
+checkpoints/
+
+# Python / notebooks
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.venv/
+venv/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
