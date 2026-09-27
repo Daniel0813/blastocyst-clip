@@ -60,10 +60,19 @@ not defined.
 | TE A/B/C/ND | 1081/525/47/391 | 122/82/30/54 |
 ICM-C (16 train images) and TE-C (47) are very rare.
 
-**Baselines to beat (official test set)**
-- Xception (reproduced from the provided predictions): EXP 0.785 / ICM 0.723 / TE 0.670 accuracy.
-- Swin (paper): 0.85 / 0.65 / 0.62.
+**Baselines to beat (official test set)** — reproduced by `src/evaluate.py`;
+details in `results/baselines/README.md`. Two scoring protocols exist and give
+different numbers, so always say which one a number uses:
+- **kromp protocol** (the authors' script; ICM/TE scored only where gold *and*
+  predicted EXP ≥ grade 3, so each model gets its own subset): Xception
+  0.78 / 0.69 / 0.62, DeiT 0.82 / 0.63 / 0.58, Swin 0.85 / 0.65 / 0.62 —
+  matches the paper's Table 2 exactly.
+- **clean protocol** (ours; same images for every model, missing gold excluded):
+  Xception 0.785 / 0.723 / 0.670, Swin 0.852 / 0.678 / 0.674.
+- Best released model (unpublished in the paper): `convnext_tiny_384`,
+  kromp 0.853 / 0.721 / 0.621, clean 0.859 / 0.753 / 0.674.
 - Human experts vs. consensus (paper): 0.78 / 0.74 / 0.70.
+- Embryo2live's quoted baselines follow the clean protocol, not the paper's.
 
 **Known data problems**
 - **Train and test share patients.** The filename prefix appears to be a patient

@@ -58,12 +58,15 @@ discussion after disagreement (EXP 23, ICM 44, TE 37 images).
 
 Done when: checks pass and nothing downstream reads the raw CSVs.
 
-## Phase 2 — Evaluation harness (reproduce published numbers)
-- [ ] Per grade: accuracy, per-class F1, macro F1, weighted F1, confusion matrix
-- [ ] Bootstrap 95% confidence intervals
-- [ ] `prediction_xception.csv` → must give 0.785 / 0.723 / 0.670
-- [ ] Authors' repo predictions (Swin, DeiT) → best per grade should give 85.2 / 67.1 / 67.4
-- [ ] Cross-check with the authors' `evaluate_prediction_results.py`
+## Phase 2 — Evaluation harness (reproduce published numbers) ✅ done
+`src/evaluate.py`; all 9 accuracy and weighted-F1 numbers of the paper's Table 2
+reproduce under the authors' protocol. See `results/baselines/README.md`.
+
+- [x] Per grade: accuracy, per-class F1, macro F1, weighted F1, confusion matrix
+- [x] Bootstrap 95% confidence intervals
+- [x] `prediction_xception.csv` → 0.780 / 0.688 / 0.617 (kromp protocol, = paper) and 0.785 / 0.723 / 0.670 (clean protocol)
+- [x] All 12 released models scored; Embryo2live's quoted 85.2 / 67.4 match Swin under the clean protocol, its 67.1 ICM matches DeiT, not Xception
+- [x] Cross-check with the authors' `evaluate_prediction_results.py`
 
 Done when: our numbers match theirs (also settles the conflicting Swin figures in CLAUDE.md).
 
