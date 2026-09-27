@@ -41,12 +41,20 @@ First notebook cell records package versions.
 
 Done when: one blastocyst image yields a 512-d embedding.
 
-## Phase 1 — One clean label table → `data/blastocyst/labels.csv`
-- [ ] Columns: `image, split, patient_id, EXP, ICM, TE, agreement_EXP/ICM/TE, fold, is_val, patient_overlap`
-- [ ] ND = 3 everywhere; test grades as integers; raw filenames kept exactly (never re-pad)
-- [ ] Apply the fixes above; keep the 21 test images with a missing gold label, exclude per grade when scoring
-- [ ] Validation split + 5 grouped folds; flag the 629 train images whose patient appears in test
-- [ ] Automated checks: 2,042 train (2,044 minus the duplicate pair), 300 test, patient-level train count
+## Phase 1 — One clean label table → `data/blastocyst/labels.csv` ✅ done
+Built by `python src/build_labels.py`. Result: 2,042 train / 300 test; validation
+334 images (16.4% — grouped splits move whole patients, so exactly 15% is not
+reachable; EXP 5 has only 13 validation images); 5 folds of 396–432; patient-level
+train 1,413; ND rule holds with zero exceptions in both splits.
+Test agreement parsed from `Gardner_test_gold.xlsx`: `agree_*` = vote fraction,
+`raters_*` = number of annotators, `revised_*` = grade settled by panel
+discussion after disagreement (EXP 23, ICM 44, TE 37 images).
+
+- [x] Columns: `image, split, patient_id, EXP, ICM, TE, agreement_EXP/ICM/TE, fold, is_val, patient_overlap`
+- [x] ND = 3 everywhere; test grades as integers; raw filenames kept exactly (never re-pad)
+- [x] Apply the fixes above; keep the 21 test images with a missing gold label, exclude per grade when scoring
+- [x] Validation split + 5 grouped folds; flag the 629 train images whose patient appears in test
+- [x] Automated checks: 2,042 train (2,044 minus the duplicate pair), 300 test, patient-level train count
 
 Done when: checks pass and nothing downstream reads the raw CSVs.
 

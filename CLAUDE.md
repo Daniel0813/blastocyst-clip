@@ -13,11 +13,12 @@ The user leads this project's direction; decide scope questions with them.
 3. **Out of scope:** time-lapse stage classification (another member's work).
 
 **Evaluation: report both splits every time.**
-- **Official split** (2,044 train / 300 gold test) is the headline number. It
-  is directly comparable with Xception, Swin and the human experts.
+- **Official split** (2,042 train after dropping the conflicting `838_02.png`
+  pair / 300 gold test) is the headline number. It is directly comparable with
+  Xception, Swin and the human experts.
 - **Patient-level split** is the leakage-free check. Use the same 300 gold test
   images, but drop from training every image whose patient prefix also appears
-  in the test set: 2,044 → 1,415 training images (ICM-C 10, TE-C 35). Keeping
+  in the test set: 2,042 → 1,413 training images (ICM-C 10, TE-C 35). Keeping
   only unseen-patient test images instead was rejected because it leaves just
   58 test images.
 - Metrics: accuracy (for comparison with published numbers) plus per-class and
