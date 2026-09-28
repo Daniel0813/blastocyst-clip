@@ -6,7 +6,9 @@ no class weights, no ordinal loss — later changes are measured against this.
   ICM / TE heads: training images with EXP grade >= 3 only, 3 classes (A/B/C)
 Prediction: EXP grade 1-2 -> ICM = TE = ND (rule, not learned).
 The only hyperparameter, the inverse regularisation strength C, is chosen per
-head by 5-fold grouped CV (labels.csv `fold`, grouped by patient) on accuracy.
+head by 5-fold grouped CV (labels.csv `fold`, grouped by patient), on accuracy
+(default) or macro F1 (--select f1_macro; accuracy rewards always predicting
+the majority grade).
 Logistic regression with lbfgs is deterministic, so there are no seeds to vary.
 
 Runs on both training sets:
@@ -23,6 +25,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import f1_score
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
@@ -37,15 +40,24 @@ def make_head(C):
     return make_pipeline(StandardScaler(), LogisticRegression(C=C, max_iter=5000))
 
 
+SELECT = "acc"
+
+
+def cv_score(y_true, y_pred):
+    if SELECT == "f1_macro":
+        return f1_score(y_true, y_pred, average="macro", zero_division=0)
+    return (y_true == y_pred).mean()
+
+
 def tune_and_fit(X, y, folds):
-    """Pick C by grouped CV accuracy, refit on all rows. Returns (model, C, cv_acc)."""
+    """Pick C by grouped CV score, refit on all rows. Returns (model, C, cv_score)."""
     scores = []
     for C in C_GRID:
         accs = []
         for k in np.unique(folds):
             tr, va = folds != k, folds == k
             m = make_head(C).fit(X[tr], y[tr])
-            accs.append((m.predict(X[va]) == y[va]).mean())
+            accs.append(cv_score(y[va], m.predict(X[va])))
         scores.append(np.mean(accs))
     best = int(np.argmax(scores))
     return make_head(C_GRID[best]).fit(X, y), C_GRID[best], scores[best]
@@ -79,7 +91,7 @@ def run(emb, labels, train_mask, name, out_dir) -> pd.DataFrame:
     pred.to_csv(path, header=False, index=False)
     print(f"\n[{name}] training images: {len(tr)}")
     for g, n, C, cv in info:
-        print(f"  {g:3s} head: trained on {n:4d}, C={C:.4g}, CV accuracy {cv:.3f}")
+        print(f"  {g:3s} head: trained on {n:4d}, C={C:.4g}, CV {SELECT} {cv:.3f}")
     return evaluate.evaluate(path, evaluate.load_gold(args_labels)).assign(train_set=name)
 
 
@@ -99,19 +111,22 @@ def majority_baseline(labels, out_dir) -> pd.DataFrame:
 
 
 def main():
-    global args_labels
+    global args_labels, SELECT
     ap = argparse.ArgumentParser()
     ap.add_argument("--emb-dir", default="results/embeddings/biomedclip", type=Path)
     ap.add_argument("--labels", default="data/blastocyst/labels.csv", type=Path)
+    ap.add_argument("--select", choices=["acc", "f1_macro"], default="acc",
+                    help="CV criterion for choosing C")
     args = ap.parse_args()
     args_labels = args.labels
+    SELECT = args.select
 
     labels = pd.read_csv(args.labels)
     names = pd.read_csv(args.emb_dir / "blastocyst_images.csv")["image"]
     assert names.tolist() == labels["image"].tolist(), "embedding order != labels.csv order"
     emb = np.load(args.emb_dir / "blastocyst_images.npy")
 
-    out_dir = Path("results/linear_probe") / args.emb_dir.name
+    out_dir = Path("results/linear_probe") / (args.emb_dir.name + ("" if SELECT == "acc" else f"_{SELECT}"))
     out_dir.mkdir(parents=True, exist_ok=True)
 
     is_train = labels["split"] == "train"

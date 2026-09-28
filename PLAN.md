@@ -109,7 +109,11 @@ Logistic-regression heads, C tuned by 5-fold grouped CV on accuracy, no class we
 - Patient leakage barely changes a frozen model (0.758 vs 0.748).
 
 Diagnostics before deciding:
-- [ ] (a) Tune C on macro F1 instead of accuracy (local)
+- [x] (a) Tune C on macro F1 instead of accuracy (local) → **minor factor only.**
+      Macro F1 rises (EXP 0.534→0.576, ICM 0.369→0.427, TE 0.415→0.461) and the head no longer
+      predicts only A, but accuracy is flat (0.752 / 0.616 / 0.587): 53/68 true-B still called A,
+      0/17 true-C recognised. Gap to Xception stays ~10 points → the 512-d features are the limit.
+      Results: `results/linear_probe/biomedclip_f1_macro/`.
 - [ ] (b) Pre-projection 768-d features + mean patch features (one more Colab encode)
 
 ## Phase 6 — Track A: image–text fine-tuning (Colab)
