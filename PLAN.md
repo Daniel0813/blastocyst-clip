@@ -134,9 +134,14 @@ Kromp protocol: 0.773 / 0.642 / 0.613 (Xception 0.780 / 0.688 / 0.617).
 C per head by 5-fold grouped CV on macro F1; ND rule at prediction time.
 Run: `python src/linear_probe.py --emb-dir results/embeddings/biomedclip_full --feature cls+patchmean --select f1_macro`
 
-- [ ] **Follow-up:** with these features the patient-level split drops ~5 points (ICM 0.678→0.627,
-      TE 0.663→0.615), unlike the 512-d version. Confounded with training size (1,413 vs 2,042):
-      control = drop 629 *random* training images instead of the patient-overlap ones.
+- [x] **Leakage control** (`src/leakage_control.py`, results in `results/leakage_control/`): drop 629
+      images of *random* non-overlap patients instead, 5 seeds. Clean accuracy EXP / ICM / TE:
+      official 0.779 / 0.678 / 0.663; control 0.769±0.028 / 0.645±0.015 / 0.645±0.019;
+      patient-level 0.782 / 0.627 / 0.615. → Fewer images costs ICM 3.3 / TE 1.8 points;
+      **leakage costs ICM 1.8 / TE 3.0 points, EXP none** — suggestive only (1–1.6 sd of the
+      control spread; test-set CI is ±5). Frozen encoders gain little from leakage; whether
+      fine-tuned published models gain more would need one retrained on the patient-level split
+      (future work, not pursued now).
 
 
 ## Phase 6 — Track A: image–text fine-tuning (Colab)
