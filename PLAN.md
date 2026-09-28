@@ -91,15 +91,26 @@ Embeddings saved to Drive: `MyDrive/blastocyst-clip/results/embeddings/biomedcli
       (true grade 1: 23). BiomedCLIP's text side does not link Gardner descriptions to these
       images; the link must be learned (track A). This is the floor of the label-efficiency curve.
 
-## Phase 5 — E1: THE BASELINE
-- [ ] Three linear heads on cached embeddings: EXP (5), ICM (3), TE (3)
-- [ ] ICM/TE heads train only on EXP ≥ 3; plain cross-entropy
-- [ ] Tune regularization with 5-fold grouped CV
-- [ ] Prediction: EXP 1–2 → ICM = TE = ND; also report ICM/TE given the true EXP
-- [ ] 5 seeds; official and patient-level splits
-- [ ] Table vs Xception, Swin, human experts, MDMBG-Net
+## Phase 5 — E1: THE BASELINE ⚠️ first run done — go/no-go failed for ICM/TE
+`src/linear_probe.py` on the Colab embeddings; results in `results/linear_probe/biomedclip/`.
+Logistic-regression heads, C tuned by 5-fold grouped CV on accuracy, no class weights.
 
-Go/no-go: within ~5 points of Xception on the official split → proceed to Phase 6.
+| clean protocol, accuracy | EXP | ICM | TE |
+|---|---|---|---|
+| Official split | 0.758 | 0.620 | 0.559 |
+| Patient-level split | 0.748 | 0.613 | 0.562 |
+| Xception (published) | 0.785 | 0.723 | 0.670 |
+| Majority-grade guess | 0.513 | 0.524 | 0.424 |
+
+- EXP within 3 points of Xception (pass); ICM −10.3, TE −11.1 (fail).
+- **ICM head collapsed to "always A"** (predicts A for 65/68 true B, 16/17 true C); CV chose strong regularisation (C = 0.001).
+- **Label shift between splits:** grade-A share is 79% (ICM) / 65% (TE) in the silver training labels (one expert)
+  but 64% / 52% in the gold test labels (panel) — the silver grader is more lenient. Affects every model on this dataset.
+- Patient leakage barely changes a frozen model (0.758 vs 0.748).
+
+Diagnostics before deciding:
+- [ ] (a) Tune C on macro F1 instead of accuracy (local)
+- [ ] (b) Pre-projection 768-d features + mean patch features (one more Colab encode)
 
 ## Phase 6 — Track A: image–text fine-tuning (Colab)
 - [ ] Contrastive fine-tuning on pseudo-captions + silver captions (last block or LoRA)
