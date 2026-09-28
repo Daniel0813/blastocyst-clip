@@ -35,11 +35,20 @@ def pad_to_square(img: Image.Image) -> Image.Image:
     return out
 
 
-def load(name: str = "biomedclip", device: str | None = None):
-    """Return (model, image_transform, tokenize_fn, device)."""
+def load(name: str = "biomedclip", device: str | None = None, weights=None):
+    """Return (model, image_transform, tokenize_fn, device).
+
+    weights: optional adapter.pt from src/finetune.py (the fine-tuned parameters only).
+    """
     device = device or ("cuda" if torch.cuda.is_available() else "cpu")
     model, preprocess = open_clip.create_model_from_pretrained(MODELS[name])
     tokenizer = open_clip.get_tokenizer(MODELS[name])
+    if weights is not None:
+        state = torch.load(weights, map_location="cpu")
+        missing = set(state) - set(dict(model.named_parameters()))
+        assert not missing, f"adapter has unknown parameters: {sorted(missing)[:3]}"
+        model.load_state_dict(state, strict=False)
+        print(f"loaded {len(state)} fine-tuned tensors from {weights}")
     model = model.to(device).eval()
 
     def transform(img: Image.Image) -> torch.Tensor:

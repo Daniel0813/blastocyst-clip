@@ -144,10 +144,24 @@ Run: `python src/linear_probe.py --emb-dir results/embeddings/biomedclip_full --
       (future work, not pursued now).
 
 
-## Phase 6 — Track A: image–text fine-tuning (Colab)
-- [ ] Contrastive fine-tuning on pseudo-captions + silver captions (last block or LoRA)
-- [ ] Rerun E0 and E1 on the adapted model
-- [ ] Label-efficiency curve: 0 / 10 / 50 / 200 / all labels, adapted vs frozen
+## Phase 6 — Track A: image–text fine-tuning (Colab) — in progress
+Code: `src/finetune.py` (contrastive fine-tuning, last 2 blocks of each encoder + projections =
+29.6M of 196M parameters; multi-positive loss so same-grade pseudo-captions are not pushed apart,
+as in UniCL, Yang et al. CVPR 2022), `src/embed.py --weights`, `notebooks/02_finetune_track_a.ipynb`.
+
+Real captions: 172 blastocyst-stage, of which **53 (33 embryos) are held out for cross-clinic
+testing**, fixed before any training; 119 used for adaptation.
+
+| Condition | Adapted on | Kromp labels used |
+|---|---|---|
+| A0 | nothing (frozen baseline) | N, heads only |
+| A1 | 119 real expert captions (other clinic) | none during adaptation |
+| A2 | real captions + pseudo-captions of the same N images | N |
+
+- [ ] Step 1: A1, seed 0 — zero-shot after adaptation + linear heads with all labels
+- [ ] Step 2: label-efficiency grid, N = 50 / 100 / 200 / 500 / 2,042, 3 seeds, A0 vs A1 vs A2
+- [ ] Cross-clinic test on the 53 held-out captions (38 state an expansion grade)
+- [ ] Initial hyperparameters (20 epochs, lr 2e-5, batch 32) are untuned; tune on the validation split if step 1 is promising
 
 ## Phase 7 — Later, each measured against the Phase 5 baseline
 - [ ] Encoder swap: BMCA-CLIP, DINOv2

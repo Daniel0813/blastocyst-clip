@@ -10,7 +10,7 @@ Outputs (in --out-dir, default results/embeddings/<model>/):
   prompts.npz             per grade: class codes + mean prompt embedding per class
 
 Usage (local CPU or Colab GPU):
-    python src/embed.py --data-dir data --model biomedclip [--limit 16]
+    python src/embed.py --data-dir data --model biomedclip [--limit 16] [--weights adapter.pt]
 """
 import argparse
 import json
@@ -83,11 +83,12 @@ def main():
     ap.add_argument("--out-dir", type=Path)
     ap.add_argument("--limit", type=int, help="encode only the first N images (smoke test)")
     ap.add_argument("--batch-size", type=int, default=64)
+    ap.add_argument("--weights", type=Path, help="adapter.pt from src/finetune.py")
     args = ap.parse_args()
     out_dir = args.out_dir or Path("results/embeddings") / args.model
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    model, transform, tokenize, device = clip_model.load(args.model)
+    model, transform, tokenize, device = clip_model.load(args.model, weights=args.weights)
     print(f"model {args.model} on {device}")
 
     np.savez(out_dir / "prompts.npz", **encode_prompts(model, tokenize, device))

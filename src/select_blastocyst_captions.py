@@ -16,12 +16,15 @@ import argparse
 import csv
 import io
 import json
+import random
 import re
 import tarfile
 import urllib.request
 from pathlib import Path
 
-ANNOTATIONS_URL = "https://zenodo.org/records/6390798/files/embryo_dataset_annotations.tar.gz?download=1"
+HOLDOUT_FRACTION = 0.30
+HOLDOUT_SEED = 42
+ANNOTATIONS_URL ="https://zenodo.org/records/6390798/files/embryo_dataset_annotations.tar.gz?download=1"
 BLASTOCYST_STAGES = {"tSB", "tB", "tEB", "tHB"}
 NAME = re.compile(r"^(.+)_WELL\d+_RUN(\d+)\.jpe?g$", re.I)
 
@@ -87,6 +90,20 @@ def main():
                 selected.append({"filename": row["filename"], "source": source, "stage": stage,
                                  **extract_grades(row["caption"]), "caption": row["caption"].strip()})
 
+    # Held-out split for cross-clinic testing, fixed before any training: whole
+    # embryos (videos) are held out until ~30% of captions are covered.
+    videos = sorted({NAME.match(r["filename"]).group(1) for r in selected})
+    rng = random.Random(HOLDOUT_SEED)
+    rng.shuffle(videos)
+    held, count = set(), 0
+    for v in videos:
+        if count >= HOLDOUT_FRACTION * len(selected):
+            break
+        held.add(v)
+        count += sum(NAME.match(r["filename"]).group(1) == v for r in selected)
+    for r in selected:
+        r["holdout"] = NAME.match(r["filename"]).group(1) in held
+
     out = args.captions_dir / "blastocyst_captions.jsonl"
     with out.open("w", encoding="utf-8") as f:
         for r in selected:
@@ -99,6 +116,10 @@ def main():
         vals = [r[key] for r in selected if r[key] is not None]
         dist = {v: vals.count(v) for v in sorted(set(vals), key=str)}
         print(f"  {key}: stated in {len(vals)} -> {dist}")
+    hold = [r for r in selected if r["holdout"]]
+    print(f"held out for cross-clinic testing: {len(hold)} captions from "
+          f"{len({NAME.match(r['filename']).group(1) for r in hold})} embryos "
+          f"({sum(r['exp_grade'] is not None for r in hold)} state an expansion grade)")
     print(f"wrote {out}")
 
 
