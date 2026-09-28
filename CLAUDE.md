@@ -99,9 +99,18 @@ Full checklist in `PLAN.md`; `findings-and-pivot.md` explains why.
   already reaches ~86 / 78 / 74. Tracks: (A) grading taught by expert language,
   measured by label efficiency and cross-clinic transfer; (B) confidence that
   matches per-image annotator agreement.
-- **Baseline:** frozen BiomedCLIP ViT-B/16 + three linear heads (EXP 5, ICM 3,
-  TE 3), plain cross-entropy. ICM/TE heads train on EXP ≥ 3 only; at prediction
-  time EXP 1–2 ⇒ ICM = TE = ND. Every later change is measured against it.
+- **Baseline (established):** frozen BiomedCLIP ViT-B/16; features = CLS token +
+  mean of the 196 patch tokens (1,536-d, taken *before* the 512-d projection —
+  the 512-d CLIP embedding loses the cell-level detail ICM/TE need); three
+  logistic-regression heads (EXP 5, ICM 3, TE 3), plain cross-entropy, C per head
+  by 5-fold grouped CV on macro F1 (accuracy-based tuning collapses ICM to "always
+  A"). ICM/TE heads train on EXP ≥ 3 only; at prediction time EXP 1–2 ⇒ ICM = TE = ND.
+  Clean-protocol result: 0.779 / 0.678 / 0.663 (Xception 0.785 / 0.723 / 0.670).
+  Every later change is measured against it.
+- **Zero-shot (E0) fails:** prompt matching scores below majority guessing
+  (0.134 / 0.168 / 0.184); the text–image link must be learned.
+- **Label shift:** the silver training labels (one expert) are more lenient than
+  the gold test labels (panel): grade A is 79% vs 64% for ICM, 65% vs 52% for TE.
 - **Preprocessing:** pad to square, then the encoder's own resize (bicubic for CLIP).
 - **Validation:** 15% of train, grouped by patient, stratified by EXP; linear
   heads tuned with 5-fold grouped CV. The test set is used once, at the end.

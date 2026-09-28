@@ -34,6 +34,8 @@ from src import evaluate  # noqa: E402
 
 ND = 3
 C_GRID = np.logspace(-4, 1, 11)
+# Feature choice -> file suffixes written by src/embed.py (concatenated if several)
+FEATURES = {"proj": [""], "cls": ["_cls"], "patchmean": ["_patchmean"], "cls+patchmean": ["_cls", "_patchmean"]}
 
 
 def make_head(C):
@@ -117,6 +119,8 @@ def main():
     ap.add_argument("--labels", default="data/blastocyst/labels.csv", type=Path)
     ap.add_argument("--select", choices=["acc", "f1_macro"], default="acc",
                     help="CV criterion for choosing C")
+    ap.add_argument("--feature", choices=list(FEATURES), default="proj",
+                    help="proj = 512-d CLIP embedding; cls / patchmean = 768-d trunk features")
     args = ap.parse_args()
     args_labels = args.labels
     SELECT = args.select
@@ -124,9 +128,13 @@ def main():
     labels = pd.read_csv(args.labels)
     names = pd.read_csv(args.emb_dir / "blastocyst_images.csv")["image"]
     assert names.tolist() == labels["image"].tolist(), "embedding order != labels.csv order"
-    emb = np.load(args.emb_dir / "blastocyst_images.npy")
+    emb = np.concatenate([np.load(args.emb_dir / f"blastocyst_images{s}.npy") for s in FEATURES[args.feature]],
+                         axis=1)
+    print(f"features: {args.feature} {emb.shape}")
 
-    out_dir = Path("results/linear_probe") / (args.emb_dir.name + ("" if SELECT == "acc" else f"_{SELECT}"))
+    tag = args.emb_dir.name + ("" if args.feature == "proj" else f"_{args.feature}") \
+        + ("" if SELECT == "acc" else f"_{SELECT}")
+    out_dir = Path("results/linear_probe") / tag
     out_dir.mkdir(parents=True, exist_ok=True)
 
     is_train = labels["split"] == "train"

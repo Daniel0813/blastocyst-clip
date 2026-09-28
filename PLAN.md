@@ -91,7 +91,7 @@ Embeddings saved to Drive: `MyDrive/blastocyst-clip/results/embeddings/biomedcli
       (true grade 1: 23). BiomedCLIP's text side does not link Gardner descriptions to these
       images; the link must be learned (track A). This is the floor of the label-efficiency curve.
 
-## Phase 5 — E1: THE BASELINE ⚠️ first run done — go/no-go failed for ICM/TE
+## Phase 5 — E1: THE BASELINE ✅ GO (after check b)
 `src/linear_probe.py` on the Colab embeddings; results in `results/linear_probe/biomedclip/`.
 Logistic-regression heads, C tuned by 5-fold grouped CV on accuracy, no class weights.
 
@@ -114,7 +114,30 @@ Diagnostics before deciding:
       predicts only A, but accuracy is flat (0.752 / 0.616 / 0.587): 53/68 true-B still called A,
       0/17 true-C recognised. Gap to Xception stays ~10 points → the 512-d features are the limit.
       Results: `results/linear_probe/biomedclip_f1_macro/`.
-- [ ] (b) Pre-projection 768-d features + mean patch features (one more Colab encode)
+- [x] (b) Pre-projection 768-d features + mean patch features (computed locally; the 512-d part
+      matches Colab exactly) → **fixes it.** Results in `results/linear_probe/biomedclip_full_*`.
+
+| clean, official, accuracy (macro F1) | EXP | ICM | TE | mean CV macro F1 |
+|---|---|---|---|---|
+| 512-d embedding | 0.752 (0.576) | 0.616 (0.427) | 0.587 (0.461) | 0.471 |
+| CLS 768-d | 0.748 (0.565) | 0.647 (0.453) | 0.639 (0.545) | 0.482 |
+| Patch mean 768-d | 0.748 (0.591) | 0.671 (0.474) | 0.611 (0.539) | 0.495 |
+| **CLS + patch mean 1,536-d** | **0.779 (0.614)** | **0.678 (0.505)** | **0.663 (0.594)** | **0.498** |
+| Xception (published) | 0.785 (0.657) | 0.723 (0.555) | 0.670 (0.554) | — |
+
+Feature variant chosen by mean CV macro F1 on training data (not by test score): CLS + patch mean.
+Within the go/no-go margin on all three grades; TE macro F1 beats Xception.
+Kromp protocol: 0.773 / 0.642 / 0.613 (Xception 0.780 / 0.688 / 0.617).
+
+**Final baseline definition:** frozen BiomedCLIP; features = CLS token + mean of patch tokens
+(1,536-d, pre-projection); three logistic-regression heads (EXP 5, ICM 3, TE 3; ICM/TE on EXP ≥ 3);
+C per head by 5-fold grouped CV on macro F1; ND rule at prediction time.
+Run: `python src/linear_probe.py --emb-dir results/embeddings/biomedclip_full --feature cls+patchmean --select f1_macro`
+
+- [ ] **Follow-up:** with these features the patient-level split drops ~5 points (ICM 0.678→0.627,
+      TE 0.663→0.615), unlike the 512-d version. Confounded with training size (1,413 vs 2,042):
+      control = drop 629 *random* training images instead of the patient-overlap ones.
+
 
 ## Phase 6 — Track A: image–text fine-tuning (Colab)
 - [ ] Contrastive fine-tuning on pseudo-captions + silver captions (last block or LoRA)
