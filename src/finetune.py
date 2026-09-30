@@ -33,10 +33,9 @@ import pandas as pd
 import torch
 import torch.nn.functional as F
 from PIL import Image
-from sklearn.model_selection import train_test_split
-
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from src import clip_model  # noqa: E402
+from src.subsets import labelled_subset  # noqa: E402
 from src.text import load_bank, pseudo_caption  # noqa: E402
 
 
@@ -61,12 +60,7 @@ def caption_pairs(data_dir: Path, limit=None) -> list[dict]:
 
 def pseudo_pairs(data_dir: Path, n_labels, train_set: str, seed: int, limit=None) -> list[dict]:
     labels = pd.read_csv(data_dir / "blastocyst" / "labels.csv")
-    tr = labels[labels.split == "train"]
-    if train_set == "patient_level":
-        tr = tr[~tr.patient_overlap]
-    if n_labels and n_labels < len(tr):
-        tr, _ = train_test_split(tr, train_size=n_labels, stratify=tr["EXP"], random_state=seed)
-    tr = tr.iloc[:limit]
+    tr = labelled_subset(labels, n_labels, seed, train_set).iloc[:limit]
     return [{"path": data_dir / "blastocyst" / "Images" / r.image, "text": None,
              "group": f"grade:{r.EXP}{r.ICM}{r.TE}", "grades": (int(r.EXP), int(r.ICM), int(r.TE)),
              "image": r.image} for r in tr.itertuples()]
