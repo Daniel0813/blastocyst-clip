@@ -169,6 +169,13 @@ testing**, fixed before any training; 119 used for adaptation.
       0.779 / 0.678 / 0.663; CV macro F1 unchanged (0.610 / 0.399 / 0.495 vs 0.606 / 0.398 / 0.491).
       `src/caption_zeroshot.py`; results in `results/linear_probe/biomedclip_a1_seed0_*`.
 - [ ] Step 2: label-efficiency grid, N = 50 / 100 / 200 / 500 / 2,042, 3 seeds, A0 vs A1 vs A2
+      (`src/label_efficiency.py`, `src/subsets.py`; A2 via `notebooks/03_label_efficiency_a2.ipynb`)
+  - [x] A0 and A1 done locally (`results/label_efficiency/`). Clean accuracy, mean of 3 seeds,
+        A0 → EXP 0.671 / 0.685 / 0.706 / 0.751 / 0.779, ICM 0.590 / 0.607 / 0.605 / 0.652 / 0.678,
+        TE 0.488 / 0.534 / 0.565 / 0.604 / 0.663 for N = 50 / 100 / 200 / 500 / all.
+        **A1 is within 2 points of A0 at every N** (seed sd 0.01–0.04): caption-only adaptation
+        does not change label efficiency. With 500 labels A0 keeps ~96% of full EXP/ICM accuracy.
+  - [ ] A2 on Colab (13 runs)
 - [ ] Cross-clinic test on the 53 held-out captions (38 state an expansion grade)
 - [ ] Initial hyperparameters (20 epochs, lr 2e-5, batch 32) are untuned; tune on the validation split if step 1 is promising
 
