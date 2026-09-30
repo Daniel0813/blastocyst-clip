@@ -158,7 +158,16 @@ testing**, fixed before any training; 119 used for adaptation.
 | A1 | 119 real expert captions (other clinic) | none during adaptation |
 | A2 | real captions + pseudo-captions of the same N images | N |
 
-- [ ] Step 1: A1, seed 0 — zero-shot after adaptation + linear heads with all labels
+- [x] Step 1: A1, seed 0 — **negative result: 119 free-text captions do not teach grading.**
+      Training loss 4.60 → 2.71 over 20 epochs, still falling (learned, no overfitting, maybe undertrained).
+      Zero-shot on Kromp test: 0.134 / 0.168 / 0.184 (frozen) → 0.178 / 0.284 / 0.288 (A1), still below
+      majority guessing. **Zero-shot on held-out caption images (same microscope as the training
+      captions):** EXP 0.368 → 0.368, ICM 0.333 → 0.444, TE 0.278 → 0.278 (majority 0.447 / 0.444 / 0.611;
+      n = 38 / 18 / 18) — and even on the training captions EXP only 0.366 → 0.378. So the model learned
+      to match each caption to its own image, not the grading concepts; the microscope gap is not the
+      explanation. Linear heads on A1 features (clean, official): 0.785 / 0.671 / 0.625 vs baseline
+      0.779 / 0.678 / 0.663; CV macro F1 unchanged (0.610 / 0.399 / 0.495 vs 0.606 / 0.398 / 0.491).
+      `src/caption_zeroshot.py`; results in `results/linear_probe/biomedclip_a1_seed0_*`.
 - [ ] Step 2: label-efficiency grid, N = 50 / 100 / 200 / 500 / 2,042, 3 seeds, A0 vs A1 vs A2
 - [ ] Cross-clinic test on the 53 held-out captions (38 state an expansion grade)
 - [ ] Initial hyperparameters (20 epochs, lr 2e-5, batch 32) are untuned; tune on the validation split if step 1 is promising
