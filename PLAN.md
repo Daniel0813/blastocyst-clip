@@ -176,4 +176,12 @@ testing**, fixed before any training; 119 used for adaptation.
 - [ ] Encoder swap: BMCA-CLIP, DINOv2
 - [ ] Ordinal loss: CORN, Kragh's ordinal cross-entropy
 - [ ] Imbalance correction: logit adjustment
-- [ ] Track B: confidence vs per-image annotator agreement
+- [x] Track B, first analysis (`src/track_b.py`, `results/track_b/uncertainty_vs_agreement.csv`):
+      our baseline + all 12 released models; uncertainty = 1 − max probability; "contested" = panel
+      not unanimous or revised by discussion. Contested share: EXP 154/298, ICM 133/237, TE 130/232.
+      **Errors concentrate on contested images** for every model (best published: EXP 0.93–0.98
+      unanimous vs 0.66–0.75 contested; ICM 0.84–0.91 vs 0.49–0.62). **Uncertainty flags contested
+      images moderately for EXP (AUROC 0.65–0.79), weakly for ICM (0.60–0.70), not at all for TE
+      (0.47–0.58) — for every model.** Ours is the weakest (0.674 / 0.596 / 0.545); the released models
+      use SWA-Gaussian averaging. Released `convnextv2_tiny` has no TE probabilities (all NaN).
+      Next: bootstrap CIs; test calibration fixes (temperature scaling, ensembling, soft labels).

@@ -91,6 +91,15 @@ def run(emb, labels, train_mask, name, out_dir) -> pd.DataFrame:
 
     path = out_dir / f"{name}_pred.csv"
     pred.to_csv(path, header=False, index=False)
+
+    # Class probabilities per head (for track B: confidence vs expert agreement).
+    # ICM/TE probabilities are over A/B/C and are given for every test image,
+    # including those the ND rule overrides.
+    proba = pd.DataFrame({"image": pred["image"]})
+    for g, model in (("EXP", exp_model), ("ICM", heads["ICM"]), ("TE", heads["TE"])):
+        for cls, col in zip(model.classes_, model.predict_proba(X_te).T):
+            proba[f"{g}_p{int(cls)}"] = col
+    proba.to_csv(out_dir / f"{name}_proba.csv", index=False)
     print(f"\n[{name}] training images: {len(tr)}")
     for g, n, C, cv in info:
         print(f"  {g:3s} head: trained on {n:4d}, C={C:.4g}, CV {SELECT} {cv:.3f}")
