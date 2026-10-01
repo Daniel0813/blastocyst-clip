@@ -175,7 +175,17 @@ testing**, fixed before any training; 119 used for adaptation.
         TE 0.488 / 0.534 / 0.565 / 0.604 / 0.663 for N = 50 / 100 / 200 / 500 / all.
         **A1 is within 2 points of A0 at every N** (seed sd 0.01–0.04): caption-only adaptation
         does not change label efficiency. With 500 labels A0 keeps ~96% of full EXP/ICM accuracy.
-  - [ ] A2 on Colab (13 runs)
+  - [x] A2 on Colab (13 runs, ~1 h 15 min on a T4). Summary + plot: `src/plot_label_efficiency.py` →
+        `results/label_efficiency/curves.png`, `summary.csv`. Clean accuracy, A0 → A2:
+        N=50 0.671→0.655 / 0.590→0.597 / 0.488→0.509; N=100 0.685→0.676 / 0.607→0.596 / 0.534→0.535;
+        N=200 0.706→0.714 / 0.605→0.602 / 0.565→0.560; N=500 0.751→0.762 / 0.652→0.643 / 0.604→0.593;
+        all (1 seed) 0.779→**0.805** / 0.678→**0.692** / 0.663→**0.674**.
+        **Language does not reduce the labels needed** (A2 within ~2 points of A0 for N ≤ 500).
+        At full labels A2 is our best result, above Xception on EXP and TE — but 1 seed, within the
+        ±5-point test noise, and possibly due to fine-tuning rather than language.
+        Zero-shot after A2 stays far below heads at every N (all labels: 0.557 / 0.555 / 0.535).
+  - [ ] Control: same fine-tuning with a plain classification loss (no text), N = all, 3 seeds;
+        plus A2 at N = all for seeds 1 and 2
 - [ ] Cross-clinic test on the 53 held-out captions (38 state an expansion grade)
 - [ ] Initial hyperparameters (20 epochs, lr 2e-5, batch 32) are untuned; tune on the validation split if step 1 is promising
 
