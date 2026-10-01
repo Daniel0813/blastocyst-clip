@@ -190,6 +190,11 @@ testing**, fixed before any training; 119 used for adaptation.
 - [ ] Initial hyperparameters (20 epochs, lr 2e-5, batch 32) are untuned; tune on the validation split if step 1 is promising
 
 ## Phase 7 — Later, each measured against the Phase 5 baseline
+- [ ] **Zero-shot with expert-written prompts:** build each grade's description from the real
+      expert captions (average the text embeddings of all training captions stating that grade)
+      instead of the prompts written from the Gardner criteria. Tests whether prompt wording caused
+      the zero-shot failure. Caveat: few captions for some grades (EXP 5: 5, ICM C: 11). Local, cheap.
+      Also: have an embryologist review `prompts/gardner_prompts.json`.
 - [ ] Encoder swap: BMCA-CLIP, DINOv2
 - [ ] Ordinal loss: CORN, Kragh's ordinal cross-entropy
 - [ ] Imbalance correction: logit adjustment
