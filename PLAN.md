@@ -186,6 +186,16 @@ testing**, fixed before any training; 119 used for adaptation.
         Zero-shot after A2 stays far below heads at every N (all labels: 0.557 / 0.555 / 0.535).
   - [ ] Control: same fine-tuning with a plain classification loss (no text), N = all, 3 seeds;
         plus A2 at N = all for seeds 1 and 2
+- [ ] Step 3: **A3 = semi-supervised adaptation (SemiCLIP, Gan et al. ICLR 2025)** + **A3c = its no-text
+      control**, N = 50 / 100 / 200 / 500, 3 seeds (`src/semiclip.py`, `notebooks/04_semiclip_a3.ipynb`).
+      A3 = A2's pairs plus the other Kromp training images *without* labels (concept pseudo-labels,
+      learnable surrogate captions, trapezoidal consistency). Why: in S-CLIP / SemiCLIP / ToMA the weak
+      baseline is "fine-tune on the few pairs only" (= our A1); their gains come from unpaired images.
+      Changes from the paper: 12 Gardner concepts instead of NLTK nouns (grading words in the captions are
+      adjectives and codes); one pseudo-concept per grade instead of flat top-k; last 2 blocks only.
+      A3c (`--no-text`) = same semi-supervised training without any text; A3 must beat A3c, not just A2,
+      before the gain can be credited to language. N = all has no unlabelled images, so it is skipped.
+      CPU smoke test passes; Colab grid not yet run.
 - [ ] Cross-clinic test on the 53 held-out captions (38 state an expansion grade)
 - [ ] Initial hyperparameters (20 epochs, lr 2e-5, batch 32) are untuned; tune on the validation split if step 1 is promising
 
@@ -195,6 +205,18 @@ testing**, fixed before any training; 119 used for adaptation.
       instead of the prompts written from the Gardner criteria. Tests whether prompt wording caused
       the zero-shot failure. Caveat: few captions for some grades (EXP 5: 5, ICM C: 11). Local, cheap.
       Also: have an embryologist review `prompts/gardner_prompts.json`.
+- [x] **TransCLIP** (Zanella et al. NeurIPS 2024; transductive, no training; `src/transclip.py`, port of the
+      authors' solver, their defaults, results in `results/transclip/`). Feature space for the mixture chosen
+      on held-out training folds (512-d projection beats 1,536-d), not on test. Clean accuracy:
+      - text prior (TransCLIP-ZS): 0.134 / 0.168 / 0.184 → 0.144 / 0.205 / 0.198, still far below majority.
+      - linear heads as prior (no text involved), mean of 3 seeds, A0 → +TransCLIP:
+        N=50 0.671→0.682 / 0.590→0.582 / 0.488→0.443; N=100 0.685→0.686 / 0.607→0.605 / 0.534→0.493;
+        N=200 0.706→0.708 / 0.605→0.607 / 0.565→0.560; N=500 0.751→0.747 / 0.652→0.619 / 0.604→0.612;
+        all 0.779→**0.711** / 0.678→0.654 / 0.663→0.656; patient-level all 0.782→0.715 / 0.627→0.623 / 0.615→0.618.
+      **No accuracy gain at any N; with all labels it hurts EXP by ~7 points** (also seen in fold validation:
+      0.743→0.688). Macro F1 rises slightly at N ≤ 500 (EXP +0.5 to +4.6, ICM +0.4 to +3.5) — its
+      equal-weight mixture pulls predictions toward rare grades, at the cost of the common ones.
+      Still to run: TransCLIP on each A3 model's zero-shot (built into notebook 04).
 - [ ] Encoder swap: BMCA-CLIP, DINOv2
 - [ ] Ordinal loss: CORN, Kragh's ordinal cross-entropy
 - [ ] Imbalance correction: logit adjustment
